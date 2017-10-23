@@ -26,7 +26,7 @@ def incremental_rescaler(incremental, min_max_range):
         # Round to neares incremental value and return it
         result = rescaled_value + incremental / 2
         result -= result % incremental
-        return rescaled_value
+        return result
 
     return rescaler
 
@@ -35,17 +35,18 @@ def log_rescaler(min_max_range):
     min_range = min(min_max_range)
     max_range = max(min_max_range)
 
-    # create min max scaler
-    min_max_scaler = create_min_max_rescaler((min_range, max_range), (0, 1))
+    # calculating limits
+    a = np.log10(min_range)
+    b = np.log10(max_range)
+
+    # create the rescaler for log
+    min_max_log_scale = create_min_max_rescaler((a, b), (0, 1))
 
     def rescaler(value):
-        # calculating lower log limit
-        a = np.log10(min_range / max_range)
-
         # calculate log rescale value
-        r = - a * value
+        r = min_max_log_scale(value)
         log_rescale_value = 10 ** r
 
-        return min_max_scaler(log_rescale_value)
+        return log_rescale_value
 
     return rescaler
