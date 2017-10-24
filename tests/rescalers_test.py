@@ -33,6 +33,6 @@ def test_log_rescaler():
 
     rescaler = res.log_rescaler((min_test, max_test))
 
-    assert np.round(rescaler(0), decimals=2) == 0.01
-    assert np.round(rescaler(1)) == 10
+    assert rescaler(0) == 0.01
+    assert rescaler(1) == 10
 
