@@ -10,10 +10,24 @@ class ParamConfig:
 
         self.scale_functions = {}
 
-    def make_rescale_functions(self):
-        raise NotImplementedError
+        self.func_types = {
+            "double": self._double,
+            "integer": self._integer,
+            "discrete": self._discrete
+        }
 
-    def _integer_type(self, range, scaling=None, incremental=None):
+    def make_rescale_functions(self):
+
+        for key, value in self.param_config.items():
+            pass
+
+    def eval_param(self, param_config_tuple):
+
+        for entry in param_config_tuple:
+            if entry in self.func_types.keys():
+                None
+
+    def _integer(self, range, scaling=None, incremental=None):
         min_range = min(range)
         max_range = max(range)
 
@@ -55,9 +69,7 @@ class ParamConfig:
         min_range = 0
         max_range = len(discrete_values)
 
-        return create_min_max_rescaler((min_range, max_range), (0, 1))
-
-
+        return incremental_rescaler(1, (min_range, max_range))
 
 
 if __name__ == "__main__":
