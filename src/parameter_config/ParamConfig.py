@@ -1,35 +1,43 @@
-import numpy as np
-from .rescalers import *
+from src.parameter_config.rescalers import *
 
 
 class ParamConfig:
 
-    def __init__(self, param_config, run_function=None):
-
-        self.param_config = param_config
-
-        self.scale_functions = {}
-
-        self.func_types = {
+    def __init__(self):
+        self._func_types = {
             "double": self._double,
             "integer": self._integer,
             "discrete": self._discrete
         }
 
-    def make_rescale_functions(self):
+    def make_rescale_dict(self, param_config):
 
-        for key, value in self.param_config.items():
-            pass
+        rescaler_functions = {}
+        for key, value in param_config.items():
+            rescaler_functions[key] = self._get_rescale_function(value)
 
-    def eval_param(self, param_config_tuple):
+        return rescaler_functions
 
-        for entry in param_config_tuple:
-            if entry in self.func_types.keys():
-                None
+    def _get_rescale_function(self, param_config_tuple):
+        items = len(param_config_tuple)
 
-    def _integer(self, range, scaling=None, incremental=None):
-        min_range = min(range)
-        max_range = max(range)
+        if param_config_tuple[0] in self._func_types.keys():
+            args = []
+            for i, entry in enumerate(param_config_tuple):
+                if i == 0:
+                    continue
+
+                args.append(entry)
+
+            rescaler = self._func_types[param_config_tuple[0]](*args)
+        else:
+            raise ValueError("The given func type \"{}\" is not supported".format(param_config_tuple[0]))
+
+        return rescaler
+
+    def _integer(self, min_max_range, scaling=None, incremental=None):
+        min_range = min(min_max_range)
+        max_range = max(min_max_range)
 
         if scaling is None:
             scaling = "incremental"
@@ -46,9 +54,9 @@ class ParamConfig:
         else:
             raise ValueError("The given scaling \"{}\" is not supported".format(scaling))
 
-    def _double(self, range, scaling=None, incremental=None):
-        min_range = min(range)
-        max_range = max(range)
+    def _double(self, min_max_range, scaling=None, incremental=None):
+        min_range = min(min_max_range)
+        max_range = max(min_max_range)
 
         if scaling is None:
             scaling = "incremental"
@@ -69,7 +77,13 @@ class ParamConfig:
         min_range = 0
         max_range = len(discrete_values)
 
-        return incremental_rescaler(1, (min_range, max_range))
+        internal_rescaler = incremental_rescaler(1, (min_range, max_range))
+
+        def rescaler(value):
+            idx = internal_rescaler(value)
+            return discrete_values[int(idx)]
+
+        return rescaler
 
 
 if __name__ == "__main__":
@@ -81,4 +95,7 @@ if __name__ == "__main__":
         "batch_size": ("discrete", [64, 128, 256, 512, 1024])
     }
 
-    tuner = ParamConfig(param_config=param_config)
+    rescaler_functions = ParamConfig.make_rescale_dict()
+    print(rescaler_functions.keys())
+    print("Learning rate rescaler input 0.5")
+    print(rescaler_functions["batch_size"](0.55))
