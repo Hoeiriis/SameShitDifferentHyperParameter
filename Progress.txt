@@ -1,0 +1,22 @@
+31-10-2017
+
+Started sampler base. Might need to implement "main" running class to be able to
+get overview of the complete problem space.
+
+Main runner class: 
+	Takes a model class that has the functions: 
+			- Give parameters and train. Returns performance 
+			  metrics for trained models
+			- Somehow implement live feedback, which can be feeded to
+			  early stopping functions
+
+	Takes evaluator functions/classes which evaluates performance metrics
+			- Eventually implement directly into model class
+			- Both live and final performance metrics
+	
+	Takes paramConfig which it creates rescaler_functions for.
+
+	Take samplers (maybe rename to suggestors) for suggesting parameters
+
+	Should log/save models and the performance
+
