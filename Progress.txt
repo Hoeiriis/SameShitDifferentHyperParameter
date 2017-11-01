@@ -12,7 +12,7 @@ Main runner class:
 
 	Takes evaluator functions/classes which evaluates performance metrics
 			- Eventually implement directly into model class
-			- Both live and final performance metrics
+			- Both live training performance and final performance metrics
 	
 	Takes paramConfig which it creates rescaler_functions for.
 
