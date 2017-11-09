@@ -8,7 +8,8 @@ Main runner class:
 			- Give parameters and train. Returns performance 
 			  metrics for trained models
 			- Somehow implement live feedback, which can be feeded to
-			  early stopping functions
+			  early stopping functions. This can be done by implementing
+			  a way to provide all the functions that should be called during training
 
 	Takes evaluator functions/classes which evaluates performance metrics
 			- Eventually implement directly into model class
