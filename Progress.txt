@@ -21,3 +21,11 @@ Main runner class:
 
 	Should log/save models and the performance
 
+Suggestor classes:
+	Takes rescale functions for rescaling
+
+	Should have a system to remember what already has been suggested
+
+	Should have a suggest method, outputting the next parameter setup to try
+		- Some of the sub classes, like ZoomGridSearch, need to keep track of the 
+		  performance of previous parameters. Maybe implement that in the suggest method
