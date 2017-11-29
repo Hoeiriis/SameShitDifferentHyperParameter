@@ -95,7 +95,8 @@ if __name__ == "__main__":
         "batch_size": ("discrete", [64, 128, 256, 512, 1024])
     }
 
-    rescaler_functions = ParamConfig.make_rescale_dict()
-    print(rescaler_functions.keys())
+    p_config = ParamConfig()
+    rescaler_functions = p_config.make_rescale_dict(param_config)
+    print(rescaler_functions.values())
     print("Learning rate rescaler input 0.5")
     print(rescaler_functions["batch_size"](0.55))

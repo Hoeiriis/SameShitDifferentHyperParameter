@@ -1,2 +1,2 @@
-from . import ParamConfig
-from . import rescalers
+from .ParamConfig import *
+
