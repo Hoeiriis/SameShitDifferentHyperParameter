@@ -10,7 +10,7 @@ class RandomSearch(SuggestorBase):
         while not unique:
             real, unscaled = self._random_param_sample()
 
-            unique = self.param_log.log_param(real, unscaled, 0)
+            unique = self.param_log.log_param(real, unscaled, np.array([0]))
 
         return real
 

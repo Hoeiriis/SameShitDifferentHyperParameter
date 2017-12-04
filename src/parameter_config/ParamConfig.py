@@ -75,7 +75,7 @@ class ParamConfig:
 
     def _discrete(self, discrete_values):
         min_range = 0
-        max_range = len(discrete_values)
+        max_range = len(discrete_values)-1
 
         internal_rescaler = incremental_rescaler(1, (min_range, max_range))
 

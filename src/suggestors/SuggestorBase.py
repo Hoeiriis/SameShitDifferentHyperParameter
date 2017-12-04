@@ -67,6 +67,7 @@ class ParamLog:
 
         # Finding the columns that contains the values
         columns = self._actual_param_log[:, column_idx]
+        real_values = real_values.reshape((-1, len(column_idx)))
 
         # Finding wether or not the param logs contain the values in the columns
         if (columns == [real_values]).all(1).any():
