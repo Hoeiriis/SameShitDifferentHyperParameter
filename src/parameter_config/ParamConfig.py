@@ -10,28 +10,31 @@ class ParamConfig:
             "discrete": self._discrete
         }
 
-    def make_rescale_dict(self, param_config):
+    def make_rescale_dict(self, params):
 
-        rescaler_functions = {}
-        for key, value in param_config.items():
-            rescaler_functions[key] = self._get_rescale_function(value)
+        rescaler_functions = []
+        for single_param in params:
+            rescaler_functions.append((single_param.name, self._get_rescale_function(single_param)))
 
         return rescaler_functions
 
-    def _get_rescale_function(self, param_config_tuple):
-        items = len(param_config_tuple)
+    def _get_rescale_function(self, single_param):
+        func_type = single_param.output_type
 
-        if param_config_tuple[0] in self._func_types.keys():
-            args = []
-            for i, entry in enumerate(param_config_tuple):
-                if i == 0:
-                    continue
+        if func_type in self._func_types.keys():
+            args = [single_param.value_range]
 
-                args.append(entry)
+            # Adding scaling if existing
+            if single_param.scaling is not None:
+                args.append(single_param.scaling)
 
-            rescaler = self._func_types[param_config_tuple[0]](*args)
+            # Adding increment if existing
+            if single_param.increment is not None:
+                args.append(single_param.increment)
+
+            rescaler = self._func_types[func_type](*args)
         else:
-            raise ValueError("The given func type \"{}\" is not supported".format(param_config_tuple[0]))
+            raise ValueError("The given func type \"{}\" is not supported".format(func_type))
 
         return rescaler
 
@@ -84,6 +87,21 @@ class ParamConfig:
             return discrete_values[int(idx)]
 
         return rescaler
+
+
+class SingleParam:
+
+    def __init__(self, name, output_type, value_range, scaling = None, increment=None):
+
+        self.name = name
+        self.value_range = value_range
+        self.output_type = output_type
+        self.scaling = scaling
+
+        if scaling == "increment" and increment is None:
+            self.increment = 1
+        else:
+            self.increment = increment
 
 
 if __name__ == "__main__":

@@ -3,14 +3,15 @@ import numpy as np
 
 class SuggestorBase:
 
-    def __init__(self, rescale_functions, param_log=None):
+    def __init__(self, rescale_functions, param_names, param_log=None):
 
         # Setting rescale function information
         self._rescale_functions = rescale_functions
         self.n_param = len(rescale_functions)
+        self.param_names = param_names
 
         # Starting log
-        self.param_log = ParamLog(self.n_param, rescale_functions.keys()) if param_log is None else param_log
+        self.param_log = ParamLog(self.n_param, self.param_names) if param_log is None else param_log
 
     def suggest_parameters(self, previous_param_performance=None):
 
