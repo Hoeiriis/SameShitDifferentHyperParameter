@@ -30,14 +30,11 @@ def test_random_search():
 
     # Making parameter suggestions
     parameter_suggestions = []
-    for i in range(0, 100):
+    for i in range(0, 1000):
         print("Suggesting parameter: {}".format(i))
         parameter_suggestions.append(rand_search.suggest_parameters()[1])
 
     parameter_suggestions = np.vstack(parameter_suggestions)
-
-    print(parameter_suggestions[:, 1])
-    print(parameter_suggestions[:, 1] > 0.7)
 
     assert not np.any(parameter_suggestions[:, 0] < 0.0001)
     assert not np.any(parameter_suggestions[:, 0] > 0.01)

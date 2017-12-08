@@ -43,6 +43,19 @@ def incremental_rescaler(incremental, min_max_range):
         # Round to neares incremental value and return it
         result = rescaled_value + incremental / 2
         result -= result % incremental
+
+        # Floating point inprecision makes it necessary to create checks for small misalingments
+        # To avoid breaking the unit testing, the difference has to be less than 0.1 % of increment
+        if result > max_range:
+            diff = result - max_range
+            if diff < (0.001 * incremental):
+                result = max_range
+
+        if result < min_range:
+            diff = min_range - result
+            if diff < (0.001 * incremental):
+                result = min_range
+
         return result
 
     return rescaler
