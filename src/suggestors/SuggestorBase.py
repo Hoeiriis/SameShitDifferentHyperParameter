@@ -43,7 +43,7 @@ class ParamLog:
         else:
             if any(check):
                 raise Warning("Parameters actual, unscaled and score were not all provided. Initializing"
-                              "new log")
+                              "empty log")
 
             self._actual_param_log = None
             self._unscaled_param_log = None
@@ -97,3 +97,6 @@ class ParamLog:
 
     def get_unscaled_params(self):
         return self._unscaled_param_log
+
+    def get_score(self):
+        return self._score
