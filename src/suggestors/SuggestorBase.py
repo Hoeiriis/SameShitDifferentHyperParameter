@@ -3,7 +3,7 @@ import numpy as np
 
 class SuggestorBase:
 
-    def __init__(self, rescale_functions, param_names, param_log=None):
+    def __init__(self, rescale_functions, param_names, param_log):
 
         # Setting rescale function information
         self._rescale_functions = rescale_functions
@@ -11,7 +11,7 @@ class SuggestorBase:
         self.param_names = param_names
 
         # Starting log
-        self.param_log = ParamLog(self.n_param, self.param_names) if param_log is None else param_log
+        self.param_log = param_log
 
     def suggest_parameters(self, previous_param_performance=None):
 
@@ -27,14 +27,27 @@ class SuggestorBase:
 
 class ParamLog:
 
-    def __init__(self, n_params, param_descriptions = None):
+    def __init__(self, n_params, actual=None, unscaled=None, score=None, param_descriptions=None):
 
         self.n_params = n_params
 
         # Initializing logs
-        self._actual_param_log = None
-        self._unscaled_param_log = None
-        self._score = None
+        check = [actual is not None, unscaled is not None, score is not None]
+        if all(check):
+            if not len(actual) == len(unscaled) == len(score):
+                raise Exception("Parameter actual, unscaled and score must have the same amount of entries")
+
+            self._actual_param_log = actual
+            self._unscaled_param_log = unscaled
+            self._score = score
+        else:
+            if any(check):
+                raise Warning("Parameters actual, unscaled and score were not all provided. Initializing"
+                              "new log")
+
+            self._actual_param_log = None
+            self._unscaled_param_log = None
+            self._score = None
 
         # Param descriptions
         if param_descriptions is not None:
