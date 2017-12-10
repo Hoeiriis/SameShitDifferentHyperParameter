@@ -13,10 +13,12 @@ class ParamConfig:
     def make_rescale_dict(self, params):
 
         rescaler_functions = []
+        names = []
         for single_param in params:
-            rescaler_functions.append((single_param.name, self._get_rescale_function(single_param)))
+            rescaler_functions.append(self._get_rescale_function(single_param))
+            names.append(single_param.name)
 
-        return rescaler_functions
+        return rescaler_functions, names
 
     def _get_rescale_function(self, single_param):
         func_type = single_param.output_type
