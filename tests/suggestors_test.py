@@ -2,6 +2,8 @@ import pytest
 import numpy as np
 from src.parameter_config.ParamConfig import ParamConfig, SingleParam
 from src.suggestors import RandomSearch
+from src.suggestors.SuggestorBase import ParamLog
+
 
 def test_random_search():
 
@@ -16,17 +18,13 @@ def test_random_search():
     p_configurer = ParamConfig()
 
     # Make rescaler functions
-    rescaler_functions = p_configurer.make_rescale_dict(param_config)
+    functions, names = p_configurer.make_rescale_dict(param_config)
 
-    functions = []
-    names = []
-
-    for entry in rescaler_functions:
-        names.append(entry[0])
-        functions.append(entry[1])
+    # Make param log
+    param_log = ParamLog(len(functions), param_descriptions=names)
 
     # Initialize RandomSearch with rescaler functions
-    rand_search = RandomSearch(functions, names)
+    rand_search = RandomSearch(functions, names, param_log=param_log)
 
     # Making parameter suggestions
     parameter_suggestions = []
