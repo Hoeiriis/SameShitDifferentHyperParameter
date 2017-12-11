@@ -21,6 +21,7 @@ Main runner class:
 
 	Should log/save models and the performance
 
+
 Suggestor classes:
 	Takes rescale functions for rescaling
 
@@ -29,3 +30,15 @@ Suggestor classes:
 	Should have a suggest method, outputting the next parameter setup to try
 		- Some of the sub classes, like ZoomGridSearch, need to keep track of the 
 		  performance of previous parameters. Maybe implement that in the suggest method
+
+
+10/12: Suggestor baseclass functional, RandomSearch implemented on top. Has semi bad performance
+logging, but works if used properly. Might need to update it later.
+
+
+Model class: 
+	- Give parameters and train. Returns performance 
+	  metrics for trained models
+			- Somehow implement live feedback, which can be feeded to
+			  early stopping functions. This can be done by implementing
+			  a way to provide all the functions that should be called during training
