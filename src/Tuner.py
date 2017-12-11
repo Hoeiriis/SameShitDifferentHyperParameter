@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 from src.parameter_config.ParamConfig import ParamConfig
-from src.suggestors.SuggestorBase import SuggestorBase, ParamLog
+from src.suggestors.SuggestorBase import ParamLog
 from src.utils import cd
 
 
@@ -11,6 +11,7 @@ class Tuner:
 
         self.name = name
         self.sam = sam
+        self.suggestors = suggestors
 
         # Making rescaler dictionary
         p_config = ParamConfig()
@@ -43,3 +44,16 @@ class Tuner:
 
             if save_model:
                 self.sam.save("{}_param_{}".format(self.name, len(actual)))
+
+    def get_param_suggestions(self, previous_param_performance=None):
+
+        param_suggestions = []
+        for suggestor in self.suggestors:
+            param_suggestions.append(suggestor.suggest_parameters(previous_param_performance))
+
+        return self.choose_param_suggestion(param_suggestions)
+
+    def choose_param_suggestion(self, param_suggestion_list):
+        print("Warning: Choosing parameters from multiple suggestors has not been implemented yet."
+              "Returning the first entry of the param_suggestion_list.")
+        return param_suggestion_list[0]
