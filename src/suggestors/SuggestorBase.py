@@ -13,11 +13,7 @@ class SuggestorBase:
         # Starting log
         self.param_log = param_log
 
-    def suggest_parameters(self, previous_param_performance=None):
-
-        if previous_param_performance is not None:
-            self.param_log.log_score(previous_param_performance)
-
+    def suggest_parameters(self):
         return self.calculate_suggestion()
 
     def calculate_suggestion(self):
@@ -63,10 +59,11 @@ class ParamLog:
             return True
         else:
 
-            if self.find_param_log_idx(actual_param, list(range(0, self.n_params))) is not None:
-                np.append(self._actual_param_log, actual_param.reshape((-1, self.n_params)), 0)
-                np.append(self._unscaled_param_log, unscaled_param.reshape((-1, self.n_params)), 0)
-                np.append(self._score, score.reshape((-1, 1)), 0)
+            if self.find_param_log_idx(actual_param, list(range(0, self.n_params))) is None:
+                self._actual_param_log = np.append(self._actual_param_log, actual_param.reshape((-1, self.n_params)), 0)
+                self._unscaled_param_log = np.append(self._unscaled_param_log,
+                                                     unscaled_param.reshape((-1, self.n_params)), 0)
+                self._score = np.append(self._score, score.reshape((-1, 1)), 0)
 
                 return True
 
@@ -76,6 +73,9 @@ class ParamLog:
 
         if idx is None:
             idx, _ = self._score.shape
+        self._score[idx-1] = score
+
+
 
     def find_param_log_idx(self, real_values, column_idx):
 
