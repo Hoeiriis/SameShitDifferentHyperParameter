@@ -87,7 +87,7 @@ def log_rescaler(min_max_range, int_log=False):
             r = min_max_log_scale(value)
             log_rescale_value = 10 ** r
 
-            return int(log_rescale_value)
+            return int(round(log_rescale_value))
     else:
         def rescaler(value):
             # calculate log rescale value
