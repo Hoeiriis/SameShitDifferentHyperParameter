@@ -86,14 +86,14 @@ class ParamConfig:
 
         def rescaler(value):
             idx = internal_rescaler(value)
-            return discrete_values[int(idx)]
+            return discrete_values[int(round(idx))]
 
         return rescaler
 
 
 class SingleParam:
 
-    def __init__(self, name, output_type, value_range, scaling = None, increment=None):
+    def __init__(self, name, output_type, value_range, scaling=None, increment=None):
 
         self.name = name
         self.value_range = value_range
