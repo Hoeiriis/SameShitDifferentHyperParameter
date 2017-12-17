@@ -1,8 +1,9 @@
 import numpy as np
 import pandas as pd
+import keras.callbacks as cb
 from src.parameter_config.ParamConfig import ParamConfig
 from src.suggestors.SuggestorBase import ParamLog
-from src.suggestors.RandomSearch import RandomSearch
+from src.suggestors import RandomSearch, ZoomRandomSearch
 from src.utils import cd
 
 
@@ -30,8 +31,9 @@ class Tuner:
         """
         self.tuner_name = name
         self.sam = sam
-        self.path = save_path
-        self.suggestors_dict = {"RandomSearch": self._make_random_search}
+        self.save_path = save_path
+        self.suggestors_dict = {"RandomSearch": self._make_random_search,
+                                "ZoomRandomSearch": self._make_zoom_random_search}
 
         # Making rescaler dictionary
         p_config = ParamConfig()
@@ -45,8 +47,13 @@ class Tuner:
             self.suggestors = self._initialize_suggestors(suggestors)
         elif type(suggestors) is str:
             self.suggestors = self._initialize_suggestors([suggestors])
+        # elif issubclass(type(suggestors), SuggestorBase):
+        #     self.suggestors = [suggestors]
+        elif type(suggestors) is dict:
+            self.suggestors = self._initialize_suggestors_from_dict(suggestors)
         else:
-            raise TypeError("Parameter suggestor should be a string or list but is of type {}".format(type(suggestors)))
+            raise TypeError("Parameter suggestor should be of type dict, string or list"
+                            " but is of type {}".format(type(suggestors)))
 
     def tune(self, stop_tuning, live_evals=True, save_model=False):
 
@@ -72,7 +79,7 @@ class Tuner:
         parameter_df = pd.DataFrame(data=score, columns=["Score"])
         joined = pd.DataFrame(data=actual, columns=self.param_names).join(parameter_df)
 
-        with cd(self.path):
+        with cd(self.save_path):
             # Saving numpy arrays
             np.save("{}_params_actual.npy".format(self.tuner_name), actual)
             np.save("{}_params_unscaled.npy".format(self.tuner_name), unscaled)
@@ -109,7 +116,36 @@ class Tuner:
 
         return suggestors
 
+    def _initialize_suggestors_from_dict(self, suggestor_dict):
+        suggestors = []
+        for name, kwargs in suggestor_dict.items():
+            if name in self.suggestors_dict.keys():
+                suggestors.append(self.suggestors_dict[name](**kwargs))
+            else:
+                raise Exception("{} is not an existing suggestor".format(name))
+
+        return suggestors
+
+    def set_callbacks(self):
+        actual = self.param_log.get_actual_params()
+
+        model_checkpoint = cb.ModelCheckpoint(save_best_only=True,
+                                              monitor='val_loss',
+                                              filepath=self.save_path+"{}_param_{}".format(self.tuner_name, len(actual)))
+        early_stopping = cb.EarlyStopping(monitor="val_loss", patience=10)
+
+        reduce_lr = cb.ReduceLROnPlateau(monitor='val_loss', factor=0.1,
+                                         patience=4, min_lr=0.00001)
+
+        callbacks = [model_checkpoint, early_stopping, reduce_lr]
+        self.sam.set_callbacks(callbacks)
+
     def _make_random_search(self):
         return RandomSearch(self.rescaler_functions, self.param_names, self.param_log)
 
-    # todo: make set_callbacks
+    def _make_zoom_random_search(self, trials_per_zoom=None, n_eval_trials=None):
+        return ZoomRandomSearch(trials_per_zoom=20 if trials_per_zoom is None else trials_per_zoom,
+                                n_eval_trials=3 if n_eval_trials is None else n_eval_trials,
+                                rescale_functions=self.rescaler_functions,
+                                param_names=self.param_names,
+                                param_log=self.param_log)
