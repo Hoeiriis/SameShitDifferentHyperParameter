@@ -6,6 +6,8 @@ class RandomSearch(SuggestorBase):
 
     def calculate_suggestion(self):
         unique = False
+        dict_param = None
+        real = None
 
         while not unique:
             dict_param, real, unscaled = self._random_param_sample()
@@ -18,12 +20,10 @@ class RandomSearch(SuggestorBase):
         real_parameters = []
         dict_param = {}
         unscaled_parameters = np.random.random_sample(self.n_param)
-        i = 0
 
         for i, func in enumerate(self._rescale_functions):
             param_value = func(unscaled_parameters[i])
             real_parameters.append(param_value)
             dict_param[self.param_names[i]] = param_value
-            i += 1
 
         return dict_param, np.asarray(real_parameters), unscaled_parameters
