@@ -26,10 +26,12 @@ def test_tuner():
 
     sam = sam_for_testing()
 
-    test_tuner = Tuner("test", sam=sam, param_config=param_config, suggestors="RandomSearch", save_path=os.getcwd())
+    suggestors = {"ZoomRandomSearch": {"trials_per_zoom": 20, "n_eval_trials": 3}}
+
+    test_tuner = Tuner("test", sam=sam, param_config=param_config, suggestors=suggestors, save_path=os.getcwd())
 
     def stopper(trials):
-        if trials > 10:
+        if trials > 100:
             return True
 
         return False
