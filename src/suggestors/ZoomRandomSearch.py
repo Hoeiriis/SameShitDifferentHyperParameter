@@ -24,15 +24,12 @@ class ZoomRandomSearch(SuggestorBase):
     def calc_zoom_bounds(self):
         score = self.param_log.get_score()
         unscaled_params = self.param_log.get_unscaled_params()
-        actual_params = self.param_log.get_actual_params()
 
         # Finding idx of top performing suggestions
         idx = np.argpartition(score, -self.n_eval_trials, axis=None)[-self.n_eval_trials:]
 
         # Getting values of top performing suggestions
         best_suggestions = unscaled_params[idx]
-        best_suggestions2 = actual_params[idx]
-        scoring = score[idx]
 
         # Finding new bounds
         self.upper_bounds = np.amax(best_suggestions, axis=0)
