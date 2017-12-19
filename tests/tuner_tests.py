@@ -1,8 +1,7 @@
 import pytest
 import numpy as np
 import os
-from src.Tuner import Tuner
-from src.parameter_config.ParamConfig import SingleParam
+from src import Tuner, SingleParam
 
 
 class sam_for_testing:
