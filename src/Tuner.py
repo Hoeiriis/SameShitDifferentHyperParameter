@@ -4,6 +4,7 @@ from src.parameter_config.ParamConfig import ParamConfig
 from src.suggestors.SuggestorBase import ParamLog
 from src.suggestors import RandomSearch, ZoomRandomSearch
 from src.utils import cd
+import datetime
 
 import keras.callbacks as cb
 #from src.utils import cd as cb
@@ -94,6 +95,9 @@ class Tuner:
 
             if save_model:
                 self.sam.save("{}_param_{}".format(self.tuner_name, len(actual)))
+
+            with open("Time_logger.txt", "a") as text_file:
+                text_file.write("Param id {}: {}\n".format(len(actual), datetime.datetime.now().time()))
 
     def _get_param_suggestions(self):
 

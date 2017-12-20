@@ -27,10 +27,11 @@ def test_tuner():
 
     suggestors = {"ZoomRandomSearch": {"trials_per_zoom": 20, "n_eval_trials": 3}}
 
-    test_tuner = Tuner("test", sam=sam, param_config=param_config, suggestors=suggestors, save_path=os.getcwd())
+    path = "C:/Users/jeppe/Dropbox/MI"
+    test_tuner = Tuner("test", sam=sam, param_config=param_config, suggestors=suggestors, save_path=path)
 
     def stopper(trials):
-        if trials > 100:
+        if trials > 10:
             return True
 
         return False
