@@ -4,7 +4,7 @@ from .SuggestorBase import SuggestorBase
 
 class ZoomRandomSearch(SuggestorBase):
 
-    def __init__(self, trials_per_zoom, rescale_functions, param_names, param_log, n_eval_trials = None):
+    def __init__(self, trials_per_zoom, rescale_functions, param_names, param_log, n_eval_trials=None):
         # setting super init
         super(ZoomRandomSearch, self).__init__(rescale_functions, param_names=param_names, param_log=param_log)
 

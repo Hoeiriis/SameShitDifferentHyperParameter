@@ -21,7 +21,7 @@ class Tuner:
         It should have the following functions:
         sam.run: Given a hyperparameter suggestion, do its thing and return a score indicating the performance of that
                  hyperparameter suggestion.
-        sam.save_model: A function for saving the model if needed. Only necessary if save_model is set to True in
+        sam.save: A function for saving the model if needed. Only necessary if save_model is set to True in
                         function tune.
         sam.set_callbacks: A function for injecting callbacks, such as EarlyStopping, into the model.
 
@@ -58,31 +58,41 @@ class Tuner:
             raise TypeError("Parameter suggestor should be of type dict, string or list"
                             " but is of type {}".format(type(suggestors)))
 
-    def tune(self, stop_tuning, live_evals=True, save_model=False):
 
+    def tune(self, stop_tuning, live_evals=True, save_model=False):
         trials = 0
         previous_param_performance = None
         while not stop_tuning(trials):
             param_suggestion = self._get_param_suggestions()
-            # todo: evals
-            previous_param_performance = self.sam.run(params=param_suggestion)
+
+            actual = self.param_log.get_actual_params()
+            param_test_name = "{}_param_{}".format(self.tuner_name, len(actual))
+
+            # Setting callbacks
+            self.set_callbacks(param_test_name)
+
+            # Running Sam w
+            previous_param_performance = self.sam.run(params=param_suggestion, name=param_test_name)
 
             self.param_log.log_score(previous_param_performance)
             self._save_log(save_model=save_model)
+            self._save_log(save_model=True, save_path="C:/SOFTWARE and giggles/NMR_tuning")
 
             trials = trials+1
 
-    def _save_log(self, save_model=False):
+    def _save_log(self, save_model=False, save_path=None):
+        if save_path is None:
+            save_path = self.save_path
 
         actual = self.param_log.get_actual_params()
         unscaled = self.param_log.get_unscaled_params()
         score = self.param_log.get_score()
 
         # Constructing csv
-        parameter_df = pd.DataFrame(data=score, columns=["Score"])
+        parameter_df = pd.DataFrame(data=score, columns=["Score"], dtype=np.float64)
         joined = pd.DataFrame(data=actual, columns=self.param_names).join(parameter_df)
 
-        with cd(self.save_path):
+        with cd(save_path):
             # Saving numpy arrays
             np.save("{}_params_actual.npy".format(self.tuner_name), actual)
             np.save("{}_params_unscaled.npy".format(self.tuner_name), unscaled)
@@ -91,7 +101,7 @@ class Tuner:
             # # Saving csv
             # heading = self.param_names
             # heading.append("Score")
-            joined.to_csv("{}_params_score".format(self.tuner_name), index=False)
+            joined.to_csv("{}_params_score".format(self.tuner_name), index=False, float_format="%.5f")
 
             if save_model:
                 self.sam.save("{}_param_{}".format(self.tuner_name, len(actual)))
@@ -132,16 +142,15 @@ class Tuner:
 
         return suggestors
 
-    def set_callbacks(self):
-        actual = self.param_log.get_actual_params()
-
+    def set_callbacks(self, name):
         model_checkpoint = cb.ModelCheckpoint(save_best_only=True,
                                               monitor='val_loss',
-                                              filepath=self.save_path+"{}_param_{}".format(self.tuner_name, len(actual)))
+                                              filepath=self.save_path+"/{}".format(name))
+
         early_stopping = cb.EarlyStopping(monitor="val_loss", patience=10)
 
-        reduce_lr = cb.ReduceLROnPlateau(monitor='val_loss', factor=0.1,
-                                         patience=4, min_lr=0.00001)
+        reduce_lr = cb.ReduceLROnPlateau(monitor='val_loss', factor=0.5,
+                                         patience=4, min_lr=0.0001)
 
         callbacks = [model_checkpoint, early_stopping, reduce_lr]
         self.sam.set_callbacks(callbacks)
@@ -150,8 +159,8 @@ class Tuner:
         return RandomSearch(self.rescaler_functions, self.param_names, self.param_log)
 
     def _make_zoom_random_search(self, trials_per_zoom=None, n_eval_trials=None):
-        return ZoomRandomSearch(trials_per_zoom=20 if trials_per_zoom is None else trials_per_zoom,
-                                n_eval_trials=3 if n_eval_trials is None else n_eval_trials,
+        return ZoomRandomSearch(trials_per_zoom=40 if trials_per_zoom is None else trials_per_zoom,
+                                n_eval_trials=10 if n_eval_trials is None else n_eval_trials,
                                 rescale_functions=self.rescaler_functions,
                                 param_names=self.param_names,
                                 param_log=self.param_log)

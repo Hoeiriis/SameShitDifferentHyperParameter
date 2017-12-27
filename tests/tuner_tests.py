@@ -9,9 +9,14 @@ class sam_for_testing:
     def __init__(self):
         print("I'm sam")
 
-    def run(self, params):
+    def run(self, params, name):
         return np.random.rand()*100
 
+    def save(self, name):
+        print("wow")
+
+    def set_callbacks(self, callbacks):
+        print("cool")
 
 def test_tuner():
 
