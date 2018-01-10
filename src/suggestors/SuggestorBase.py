@@ -75,8 +75,6 @@ class ParamLog:
             idx, _ = self._score.shape
         self._score[idx-1] = score
 
-
-
     def find_param_log_idx(self, real_values, column_idx):
 
         # Finding the columns that contains the values

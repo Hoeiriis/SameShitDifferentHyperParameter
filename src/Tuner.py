@@ -43,8 +43,10 @@ class Tuner:
         self.rescaler_functions, self.param_names = p_config.make_rescale_dict(param_config)
 
         # Starting log
-        self.param_log = ParamLog(len(self.rescaler_functions), param_descriptions=self.param_names)\
-            if param_log is None else param_log
+        if param_log is None:
+            self.param_log = ParamLog(len(self.rescaler_functions), param_descriptions=self.param_names)
+        else:
+            self.param_log = param_log
 
         if type(suggestors) is list:
             self.suggestors = self._initialize_suggestors(suggestors)
@@ -101,7 +103,7 @@ class Tuner:
             # # Saving csv
             # heading = self.param_names
             # heading.append("Score")
-            joined.to_csv("{}_params_score".format(self.tuner_name), index=False, float_format="%.5f")
+            joined.to_csv("{}_params_score.csv".format(self.tuner_name), index=False, float_format="%.5f")
 
             if save_model:
                 self.sam.save("{}_param_{}".format(self.tuner_name, len(actual)))
@@ -150,7 +152,7 @@ class Tuner:
         early_stopping = cb.EarlyStopping(monitor="val_loss", patience=10)
 
         reduce_lr = cb.ReduceLROnPlateau(monitor='val_loss', factor=0.5,
-                                         patience=4, min_lr=0.0001)
+                                         patience=3, min_lr=0.0001)
 
         callbacks = [model_checkpoint, early_stopping, reduce_lr]
         self.sam.set_callbacks(callbacks)
